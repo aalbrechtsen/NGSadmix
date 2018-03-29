@@ -1,6 +1,8 @@
 # NGSadmix
 Inferring admixture proportions from NGS data
 
+see website
+http://www.popgen.dk/software/index.php/NgsAdmix
 
 # INSTALL
 
