@@ -1,67 +1,5 @@
 /*
-  log:
-  ngsAdmix32: program now works on osx
-  icpc ngsAdmix32.cpp -lz -lpthread  -O3 -o ngsAdmix32
-
-  ngsAdmix31: reads gz frequencies 
-  icpc ngsAdmix31.cpp -lz -lpthread  -O3 -o ngsAdmix31
-  ngsAdmix30: prints information of the filtered sites
-  icpc ngsAdmix30.cpp -lz -lpthread  -O3 -o ngsAdmix30
- ngsAdmix29: more speed. DO_MIS fucked
-  icpc ngsAdmix29.cpp -lz -lpthread  -O3 -o ngsAdmix29
-  ngsAdmix26: more speed. No longer estimate likelihoods 
-   icpc ngsAdmix26.cpp -lz -lpthread  -O3 -o ngsAdmix26domis  -DDO_MIS
-  ngsAdmix25: small speed up (expG1 = expG/fstar, expG2 = (2-expG) / ( 1 - fstar))
-  icpc ngsAdmix25.cpp -lz -lpthread  -O3 -o ngsAdmix25
-  icpc ngsAdmix25.cpp -lz -lpthread  -O3 -o ngsAdmix25domis -DDO_MIS
-  ngsAdmix24: clean up. no more genotype calling. CHECK must now be compiled. DO_MIS fixed, nMiss ->minInd
-  icpc ngsAdmix24.cpp -lz -lpthread  -O3 -o ngsAdmix24
-  ngsAdmix23: prints gz Q matrix. dynamic bounderies
-  icpc ngsAdmix23.cpp -lz -lpthread  -O3 -o ngsAdmix23
-  ngsAdmix22: prints gz Q matrix
-  icpc ngsAdmix22and2.cpp -lz -lpthread  -O3 -o ngsAdmix22and2
-  ngsAdmix21: If missing info -maxLike sets GLikes to 0.33
-  same for -hweLike but probably never used
-  icpc ngsAdmix21.cpp -lz -lpthread  -O3 -o ngsAdmix21
-
-  ngsAdmix20: minLRT was compared to likelihood  - now fixed 
-  icpc ngsAdmix20.cpp -lz -lpthread  -O3 -o ngsAdmix20
-  
-  version 19
-  cutoff for HWE fixed - did the same as HWE without cutoff before.
-  icpc ngsAdmix19.cpp -lz -lpthread  -O3 -o ngsAdmix19
-  still a problem with -DDO_MIS giving -nan likelihoods - not fixed
-  
-  version 18 line er soed
-  cutoff for genotype calling -cut (only works when compiled with -DDO_MIS)
-  call genotypes (maxLike, hweLike) and update freq estimate before filtering - because this is what people will do
-  icpc ngsAdmix18.cpp -lz -lpthread  -O3 -o ngsAdmix18
-  icpc ngsAdmix18.cpp -lz -lpthread -DDO_MIS -O3 -o ngsAdmix18mis
-  
-  //version 17
-  add option to change the difference tolerance for calling missing
-  
-  //version 16: fox chix
-  simple missing implemented
-  1) skip missing genotypes
-  icpc ngsAdmix16.cpp -lz -lpthread -DDO_MIS -O3
-  2) use missing genotypes
-  icpc ngsAdmix16.cpp -lz -lpthread  -O3
-  //not major allert. if hwe genotyep calling. alleles are swiched. You cannot trust frequency output
-
-  //version 15: Thorfinn fox chix
-  added minmaf filter, added hwe genotype calling added lrt filter
-  added char** keeps indicating if a site/sample has data
-  added nMis which will remove sites with miss>nMissallowed
-  
-  //version 14: anders sux cux
-  after the alpha guess the values are mapped to the domain
-  program for estimating admixture from beagle files.
-  beagle files contains posterior in normal space
-  #introducing squareem
-  icpc -O3 -o ngsAdmix ngsAdmix14.cpp -lz -lpthread
-
-  ngsAdmix13: Use random seed. can set seed in options
+  g++ NGSadmix.cpp -O3 -lpthread -lz -o NGSadmix
 */
 
 //optimazation parameteres for maf estimation
@@ -583,7 +521,7 @@ bgl readBeagle(const char* fname) {
 
 void readDouble(double **d,int x,int y,const char*fname,int neg){
   fprintf(stderr,"opening : %s with x=%d y=%d\n",fname,x,y);
-  const char*delims=" \n";
+  const char*delims=" \t\n";
   FILE *fp = NULL;
   if((fp=fopen(fname,"r"))==NULL){
     fprintf(stderr,"cont open:%s\n",fname);
@@ -613,7 +551,7 @@ void readDouble(double **d,int x,int y,const char*fname,int neg){
 
 void readDoubleGZ(double **d,int x,int y,const char*fname,int neg){
   fprintf(stderr,"opening : %s with x=%d y=%d\n",fname,x,y);
-  const char*delims=" \n";
+  const char*delims=" \t\n";
   gzFile fp = NULL;
   if((fp=gzopen(fname,"r"))==NULL){
     fprintf(stderr,"cont open:%s\n",fname);
