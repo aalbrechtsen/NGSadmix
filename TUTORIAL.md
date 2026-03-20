@@ -43,18 +43,10 @@ Create an output directory:
 mkdir -p Demo/Results
 ```
 
-Define a few shell variables:
-
-```bash
-NGSADMIX=./NGSadmix
-IN_DIR=Demo/Data
-OUT_DIR=Demo/Results
-```
-
 Check that the expected input files are present:
 
 ```bash
-ls "$IN_DIR"
+ls Demo/Data
 ```
 
 ## Input Format
@@ -72,20 +64,20 @@ The likelihoods for each individual at a site should sum to a positive value. In
 Take a quick look at the first dataset:
 
 ```bash
-gunzip -c "$IN_DIR/Demo1input.gz" | head -n 10 | cut -f 1-10 | column -t
-gunzip -c "$IN_DIR/Demo1input.gz" | wc -l
+gunzip -c Demo/Data/Demo1input.gz | head -n 10 | cut -f 1-10 | column -t
+gunzip -c Demo/Data/Demo1input.gz | wc -l
 ```
 
 The population information file contains one label per sample. Summarize it with:
 
 ```bash
-cut -f 1 -d " " "$IN_DIR/Demo1pop.info" | sort | uniq -c
+cut -f 1 -d " " Demo/Data/Demo1pop.info | sort | uniq -c
 ```
 
 Create a label file for plotting:
 
 ```bash
-cut -f 1 -d " " "$IN_DIR/Demo1pop.info" > "$OUT_DIR/poplabel"
+cut -f 1 -d " " Demo/Data/Demo1pop.info > Demo/Results/poplabel
 ```
 
 ## Example 1: Small Three-Population Dataset
@@ -99,12 +91,12 @@ This dataset contains 30 individuals:
 Run NGSadmix with `K=3`:
 
 ```bash
-"$NGSADMIX" \
-  -likes "$IN_DIR/Demo1input.gz" \
+./NGSadmix \
+  -likes Demo/Data/Demo1input.gz \
   -K 3 \
   -minMaf 0.05 \
   -seed 1 \
-  -o "$OUT_DIR/Demo1NGSadmix"
+  -o Demo/Results/Demo1NGSadmix
 ```
 
 This produces:
@@ -117,9 +109,9 @@ This produces:
 Inspect the outputs:
 
 ```bash
-cat "$OUT_DIR/Demo1NGSadmix.log"
-zcat "$OUT_DIR/Demo1NGSadmix.fopt.gz" | head -n 5
-head -n 5 "$OUT_DIR/Demo1NGSadmix.qopt"
+cat Demo/Results/Demo1NGSadmix.log
+zcat Demo/Results/Demo1NGSadmix.fopt.gz | head -n 5
+head -n 5 Demo/Results/Demo1NGSadmix.qopt
 ```
 
 ### Plot Example 1 in R
@@ -172,32 +164,32 @@ cut -f 1 -d " " Demo2pop.info | sort | uniq -c
 Run the tutorial analysis with `K=3`:
 
 ```bash
-"$NGSADMIX" \
-  -likes "$IN_DIR/Demo2input.gz" \
+./NGSadmix \
+  -likes Demo/Data/Demo2input.gz \
   -K 3 \
   -P 1 \
   -minMaf 0.05 \
   -seed 21 \
-  -o "$OUT_DIR/Demo2NGSadmixK3"
+  -o Demo/Results/Demo2NGSadmixK3
 ```
 
 Then compare with `K=4`:
 
 ```bash
-"$NGSADMIX" \
-  -likes "$IN_DIR/Demo2input.gz" \
+./NGSadmix \
+  -likes Demo/Data/Demo2input.gz \
   -K 4 \
   -P 1 \
   -minMaf 0.05 \
   -seed 21 \
-  -o "$OUT_DIR/Demo2NGSadmixK4"
+  -o Demo/Results/Demo2NGSadmixK4
 ```
 
 Inspect the run summaries:
 
 ```bash
-tail -n 20 "$OUT_DIR/Demo2NGSadmixK3.log"
-tail -n 20 "$OUT_DIR/Demo2NGSadmixK4.log"
+tail -n 20 Demo/Results/Demo2NGSadmixK3.log
+tail -n 20 Demo/Results/Demo2NGSadmixK4.log
 ```
 
 ### Plot Example 2 in R
@@ -205,8 +197,8 @@ tail -n 20 "$OUT_DIR/Demo2NGSadmixK4.log"
 The plotting code below requires a local `Demo2pop.info` file in the current directory. A practical workflow is:
 
 ```bash
-cp path/to/Demo2pop.info "$OUT_DIR/"
-cd "$OUT_DIR"
+cp path/to/Demo2pop.info Demo/Results/
+cd Demo/Results
 ```
 
 For `K=3`:
@@ -232,7 +224,7 @@ For `K=4`, replace the `q` file with `Demo2NGSadmixK4.qopt`.
 Non-interactive PNG output:
 
 ```bash
-cd "$OUT_DIR"
+cd Demo/Results
 Rscript -e 'png("Demo2NGSadmixK3.png", width=1200, height=700); pop<-read.table("Demo2pop.info", as.is=TRUE); q<-read.table("Demo2NGSadmixK3.qopt"); ord<-order(pop[,1]); par(mar=c(5,4,2,1)); barplot(t(q)[,ord], col=2:10, space=0, border=NA, xlab="Individuals", ylab="Demo2 admixture proportions for K=3"); text(tapply(1:nrow(pop), pop[ord,1], mean), -0.05, unique(pop[ord,1]), xpd=TRUE); abline(v=cumsum(sapply(unique(pop[ord,1]), function(x) sum(pop[ord,1]==x))), col=1, lwd=1.2); dev.off()'
 
 Rscript -e 'png("Demo2NGSadmixK4.png", width=1200, height=700); pop<-read.table("Demo2pop.info", as.is=TRUE); q<-read.table("Demo2NGSadmixK4.qopt"); ord<-order(pop[,1]); par(mar=c(5,4,2,1)); barplot(t(q)[,ord], col=2:10, space=0, border=NA, xlab="Individuals", ylab="Demo2 admixture proportions for K=4"); text(tapply(1:nrow(pop), pop[ord,1], mean), -0.05, unique(pop[ord,1]), xpd=TRUE); abline(v=cumsum(sapply(unique(pop[ord,1]), function(x) sum(pop[ord,1]==x))), col=1, lwd=1.2); dev.off()'
