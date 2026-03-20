@@ -16,6 +16,7 @@ git clone https://github.com/aalbrechtsen/NGSadmix.git
 
 ## compile
 ```
+cd NGSadmix
 g++ NGSadmix.cpp -O3 -lpthread -lz -o NGSadmix
 ```
 
