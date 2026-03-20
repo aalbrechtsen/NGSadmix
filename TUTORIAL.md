@@ -1,29 +1,26 @@
 # NGSadmix Tutorial
 
-This repository contains the `NGSadmix` source code and small tutorial datasets for running the program locally.
-
 The upstream tutorial lives here:
 
 <https://www.popgen.dk/software/index.php/NgsAdmixTutorial>
 
-This version is adapted to the layout of this repository and focuses on the commands you can run directly from the project root.
+This version is adapted to this repository and uses commands that can be run directly from the project root.
 
 ## Repository Layout
 
-From the repository root:
-
 - `./NGSadmix` is the compiled executable
 - `./NGSadmix.cpp` is the source code
-- `./Demo/Data/` contains versioned Beagle-format input files used below
+- `./Demo/Data/` contains the tutorial input files
 - `./Demo/Results/` is the recommended output directory for tutorial runs
 
-The tutorial data intended to be included in the repository:
+The tutorial data included in the repository:
 
 - `Demo/Data/Demo1input.gz`
 - `Demo/Data/Demo1pop.info`
 - `Demo/Data/Demo2input.gz`
+- `Demo/Data/Demo2pop.info`
 
-Generated output files such as `.log`, `.filter`, `.qopt`, `.fopt.gz`, and plot images are not part of the tutorial data and should normally stay out of git.
+Generated output files such as `.log`, `.filter`, `.qopt`, `.fopt.gz`, and plot images should normally stay out of git.
 
 ## Build
 
@@ -68,13 +65,13 @@ gunzip -c Demo/Data/Demo1input.gz | head -n 10 | cut -f 1-10 | column -t
 gunzip -c Demo/Data/Demo1input.gz | wc -l
 ```
 
-The population information file contains one label per sample. Summarize it with:
+Summarize the population labels with:
 
 ```bash
 cut -f 1 -d " " Demo/Data/Demo1pop.info | sort | uniq -c
 ```
 
-Create a label file for plotting:
+Create a label file for plotting Example 1:
 
 ```bash
 cut -f 1 -d " " Demo/Data/Demo1pop.info > Demo/Results/poplabel
@@ -139,7 +136,9 @@ Non-interactive PNG output:
 Rscript -e 'png("Demo/Results/Demo1NGSadmix.png", width=1200, height=700); pop<-scan("Demo/Results/poplabel", what="character", quiet=TRUE); q<-read.table("Demo/Results/Demo1NGSadmix.qopt"); ord<-order(pop); par(mar=c(7,4,1,1)); barplot(t(q)[,ord], col=c(2,1,3), names.arg=pop[ord], las=2, ylab="Demo1 admixture proportions", cex.names=0.75); dev.off()'
 ```
 
-## Example 2: Larger Admixed Dataset
+![Demo 1 admixture plot](Demo/Results/Demo1NGSadmix.png)
+
+## Example 2: Larger Dataset
 
 The second example uses 50,000 sites from 100 individuals from five populations:
 
@@ -149,19 +148,18 @@ The second example uses 50,000 sites from 100 individuals from five populations:
 - MXL
 - YRI
 
-This repository tutorial includes the Beagle input file for Example 2:
+The Example 2 input files are:
 
 - `Demo/Data/Demo2input.gz`
+- `Demo/Data/Demo2pop.info`
 
-The upstream tutorial also uses a population label file named `Demo2pop.info` for plotting and grouping individuals, but that file is not required to run NGSadmix itself. If you want to reproduce the plot exactly, add `Demo2pop.info` locally before plotting.
-
-If you have a local copy of `Demo2pop.info`, you can summarize it with:
+Summarize the population labels with:
 
 ```bash
-cut -f 1 -d " " Demo2pop.info | sort | uniq -c
+cut -f 1 -d " " Demo/Data/Demo2pop.info | sort | uniq -c
 ```
 
-Run the tutorial analysis with `K=3`:
+Run NGSadmix with `K=3`:
 
 ```bash
 ./NGSadmix \
@@ -194,18 +192,11 @@ tail -n 20 Demo/Results/Demo2NGSadmixK4.log
 
 ### Plot Example 2 in R
 
-The plotting code below requires a local `Demo2pop.info` file in the current directory. A practical workflow is:
-
-```bash
-cp path/to/Demo2pop.info Demo/Results/
-cd Demo/Results
-```
-
 For `K=3`:
 
 ```r
-pop <- read.table("Demo2pop.info", as.is = TRUE)
-q <- read.table("Demo2NGSadmixK3.qopt")
+pop <- read.table("Demo/Data/Demo2pop.info", as.is = TRUE)
+q <- read.table("Demo/Results/Demo2NGSadmixK3.qopt")
 ord <- order(pop[, 1])
 barplot(
   t(q)[, ord],
@@ -219,16 +210,19 @@ text(tapply(1:nrow(pop), pop[ord, 1], mean), -0.05, unique(pop[ord, 1]), xpd = T
 abline(v = cumsum(sapply(unique(pop[ord, 1]), function(x) sum(pop[ord, 1] == x))), col = 1, lwd = 1.2)
 ```
 
-For `K=4`, replace the `q` file with `Demo2NGSadmixK4.qopt`.
+For `K=4`, replace `Demo2NGSadmixK3.qopt` with `Demo2NGSadmixK4.qopt`.
 
 Non-interactive PNG output:
 
 ```bash
-cd Demo/Results
-Rscript -e 'png("Demo2NGSadmixK3.png", width=1200, height=700); pop<-read.table("Demo2pop.info", as.is=TRUE); q<-read.table("Demo2NGSadmixK3.qopt"); ord<-order(pop[,1]); par(mar=c(5,4,2,1)); barplot(t(q)[,ord], col=2:10, space=0, border=NA, xlab="Individuals", ylab="Demo2 admixture proportions for K=3"); text(tapply(1:nrow(pop), pop[ord,1], mean), -0.05, unique(pop[ord,1]), xpd=TRUE); abline(v=cumsum(sapply(unique(pop[ord,1]), function(x) sum(pop[ord,1]==x))), col=1, lwd=1.2); dev.off()'
+Rscript -e 'png("Demo/Results/Demo2NGSadmixK3.png", width=1200, height=700); pop<-read.table("Demo/Data/Demo2pop.info", as.is=TRUE); q<-read.table("Demo/Results/Demo2NGSadmixK3.qopt"); ord<-order(pop[,1]); par(mar=c(5,4,2,1)); barplot(t(q)[,ord], col=2:10, space=0, border=NA, xlab="Individuals", ylab="Demo2 admixture proportions for K=3"); text(tapply(1:nrow(pop), pop[ord,1], mean), -0.05, unique(pop[ord,1]), xpd=TRUE); abline(v=cumsum(sapply(unique(pop[ord,1]), function(x) sum(pop[ord,1]==x))), col=1, lwd=1.2); dev.off()'
 
-Rscript -e 'png("Demo2NGSadmixK4.png", width=1200, height=700); pop<-read.table("Demo2pop.info", as.is=TRUE); q<-read.table("Demo2NGSadmixK4.qopt"); ord<-order(pop[,1]); par(mar=c(5,4,2,1)); barplot(t(q)[,ord], col=2:10, space=0, border=NA, xlab="Individuals", ylab="Demo2 admixture proportions for K=4"); text(tapply(1:nrow(pop), pop[ord,1], mean), -0.05, unique(pop[ord,1]), xpd=TRUE); abline(v=cumsum(sapply(unique(pop[ord,1]), function(x) sum(pop[ord,1]==x))), col=1, lwd=1.2); dev.off()'
+Rscript -e 'png("Demo/Results/Demo2NGSadmixK4.png", width=1200, height=700); pop<-read.table("Demo/Data/Demo2pop.info", as.is=TRUE); q<-read.table("Demo/Results/Demo2NGSadmixK4.qopt"); ord<-order(pop[,1]); par(mar=c(5,4,2,1)); barplot(t(q)[,ord], col=2:10, space=0, border=NA, xlab="Individuals", ylab="Demo2 admixture proportions for K=4"); text(tapply(1:nrow(pop), pop[ord,1], mean), -0.05, unique(pop[ord,1]), xpd=TRUE); abline(v=cumsum(sapply(unique(pop[ord,1]), function(x) sum(pop[ord,1]==x))), col=1, lwd=1.2); dev.off()'
 ```
+
+![Demo 2 admixture plot for K=3](Demo/Results/Demo2NGSadmixK3.png)
+
+![Demo 2 admixture plot for K=4](Demo/Results/Demo2NGSadmixK4.png)
 
 ## Practical Notes
 
@@ -238,4 +232,4 @@ Rscript -e 'png("Demo2NGSadmixK4.png", width=1200, height=700); pop<-read.table(
 - `-P` sets the number of CPU threads.
 - `-minMaf 0.05` filters out low-frequency sites before inference.
 
-If you want to explore model choice, run several seeds for the same `K`, then compare the best likelihoods in the `.log` files.
+To compare models more carefully, run several seeds for the same `K` and compare the best likelihoods in the `.log` files.
