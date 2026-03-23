@@ -33,36 +33,45 @@ Run:
 
 ```bash
 scripts/convergenceNGSadmix.sh \
-  --beagle Demo/Data/Demo1input.gz \
-  --outdir Demo/Results/Demo1ConvK3 \
-  --k 3 \
-  --ngsadmix-folder /home/albrecht/github/NGSadmix
+  -beagle Demo/Data/Demo1input.gz \
+  -outdir Demo/Results/Demo1ConvK3 \
+  -k 3 \
+  -ngsadmix-folder /home/albrecht/github/NGSadmix
 ```
 
 This command uses the script defaults for:
 
-- `--max-run 5`
-- `--threads 4`
-- `--conv-times 3`
-- `--start-seed 1`
-- `--ll-threshold 3`
-- `--q-threshold 0.01`
+- `-max-run 5`
+- `-threads 4`
+- `-conv-times 3`
+- `-start-seed 1`
+- `-conv-mode either`
+- `-ll-threshold 3`
+- `-q-threshold 0.01`
+- `-minMaf 0`
 
 The same command with all options written explicitly is:
 
 ```bash
 scripts/convergenceNGSadmix.sh \
-  --beagle Demo/Data/Demo1input.gz \
-  --max-run 5 \
-  --threads 4 \
-  --outdir Demo/Results/Demo1ConvK3 \
-  --k 3 \
-  --conv-times 3 \
-  --ngsadmix-folder /home/albrecht/github/NGSadmix \
-  --start-seed 1 \
-  --ll-threshold 3 \
-  --q-threshold 0.01
+  -beagle Demo/Data/Demo1input.gz \
+  -max-run 5 \
+  -threads 4 \
+  -outdir Demo/Results/Demo1ConvK3 \
+  -k 3 \
+  -conv-times 3 \
+  -ngsadmix-folder /home/albrecht/github/NGSadmix \
+  -start-seed 1 \
+  -conv-mode either \
+  -ll-threshold 3 \
+  -q-threshold 0.01 \
+  -minMaf 0
 ```
+
+If you want convergence to be decided from only one metric, set:
+
+- `-conv-mode like` or `-conv-mode ll` for likelihood only
+- `-conv-mode q` for `Q` only
 
 Generate the `Q`-comparison table:
 
@@ -104,10 +113,10 @@ Run:
 
 ```bash
 scripts/convergenceNGSadmix.sh \
-  --beagle Demo/Data/Demo1input.gz \
-  --outdir Demo/Results/Demo1ConvK5 \
-  --k 5 \
-  --ngsadmix-folder /home/albrecht/github/NGSadmix
+  -beagle Demo/Data/Demo1input.gz \
+  -outdir Demo/Results/Demo1ConvK5 \
+  -k 5 \
+  -ngsadmix-folder /home/albrecht/github/NGSadmix
 echo $?
 ```
 
@@ -117,16 +126,18 @@ The same command with all options written explicitly is:
 
 ```bash
 scripts/convergenceNGSadmix.sh \
-  --beagle Demo/Data/Demo1input.gz \
-  --max-run 5 \
-  --threads 4 \
-  --outdir Demo/Results/Demo1ConvK5 \
-  --k 5 \
-  --conv-times 3 \
-  --ngsadmix-folder /home/albrecht/github/NGSadmix \
-  --start-seed 1 \
-  --ll-threshold 3 \
-  --q-threshold 0.01
+  -beagle Demo/Data/Demo1input.gz \
+  -max-run 5 \
+  -threads 4 \
+  -outdir Demo/Results/Demo1ConvK5 \
+  -k 5 \
+  -conv-times 3 \
+  -ngsadmix-folder /home/albrecht/github/NGSadmix \
+  -start-seed 1 \
+  -conv-mode either \
+  -ll-threshold 3 \
+  -q-threshold 0.01 \
+  -minMaf 0
 echo $?
 ```
 
