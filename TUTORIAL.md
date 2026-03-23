@@ -161,7 +161,7 @@ Run NGSadmix with `K=3`:
   -K 3 \
   -P 1 \
   -minMaf 0.05 \
-  -seed 21 \
+  -seed 4 \
   -o Demo/Results/Demo2NGSadmixK3
 ```
 
@@ -173,7 +173,7 @@ Then compare with `K=4`:
   -K 4 \
   -P 1 \
   -minMaf 0.05 \
-  -seed 21 \
+  -seed 4 \
   -o Demo/Results/Demo2NGSadmixK4
 ```
 

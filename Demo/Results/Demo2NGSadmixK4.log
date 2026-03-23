@@ -1,0 +1,9 @@
+Input: lname=Demo/Data/Demo2input.gz nPop=4, fname=(null) qname=(null) outfiles=Demo/Results/Demo2NGSadmixK4
+Setup: seed=4 nThreads=1 method=1
+Convergence: maxIter=2000 tol=0.000010 tolLike50=0.100000 dymBound=0
+Filters: misTol=0.050000 minMaf=0.050000 minLrt=0.000000 minInd=0
+Input file has dim: nsites=50000 nind=100
+Input file has dim (AFTER filtering): nsites=49475 nind=100
+	[ALL done] cpu-time used =  52.22 sec
+	[ALL done] walltime used =  52.00 sec
+best like=-3817738.015534 after 343 iterations
