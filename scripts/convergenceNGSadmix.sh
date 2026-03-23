@@ -5,21 +5,22 @@ set -euo pipefail
 usage() {
     cat <<'EOF'
 Usage:
-  scripts/convergenceNGSadmix.sh <beagle_file> <max_seed> <threads> <output_dir> <K> <conv_times> <ngsadmix_root> [start_seed] [ll_window] [q_threshold]
+  scripts/convergenceNGSadmix.sh --beagle FILE --max-run N --threads N --outdir DIR --k N --conv-times N --ngsadmix-folder DIR [options]
 
-Arguments:
-  beagle_file     Input Beagle likelihood file, plain text or .gz
-  max_seed        Last seed to test, inclusive
-  threads         Number of NGSadmix threads per run
-  output_dir      Directory for all outputs
-  K               Number of ancestral populations
-  conv_times      Required number of converged runs
-  ngsadmix_root   Repository root containing ./NGSadmix
+Required options:
+  --beagle            Input Beagle likelihood file, plain text or .gz
+  --outdir            Directory for all outputs
+  --k                 Number of ancestral populations
+  --ngsadmix-folder   Repository folder containing ./NGSadmix
 
 Optional:
-  start_seed      First seed to test, default: 1
-  ll_window       Log-likelihood window for LL-based convergence, default: 3
-  q_threshold     Max element-wise Q difference for Q-based convergence, default: 0.01
+  --max-run           Last seed to test, inclusive, default: 5
+  --threads           Number of NGSadmix threads per run, default: 4
+  --conv-times        Required number of converged runs, default: 3
+  --start-seed        First seed to test, default: 1
+  --ll-threshold      Log-likelihood threshold for LL-based convergence, default: 3
+  --q-threshold       Max element-wise Q difference for Q-based convergence, default: 0.01
+  --help              Show this message
 
 Exit codes:
   2   Invalid command-line usage
@@ -32,7 +33,7 @@ Exit codes:
   21  Could not parse best likelihood from a run log
   22  Expected NGSadmix output file missing
   30  Q convergence evaluation failed
-  40  No convergence reached within the requested seeds
+  40  No convergence reached within the requested runs
 EOF
 }
 
@@ -150,21 +151,83 @@ ll_conv_count() {
     ' "$likes_file"
 }
 
-if [[ $# -lt 7 || $# -gt 10 ]]; then
-    usage >&2
-    exit 2
-fi
+file=
+max_seed=5
+threads=4
+out_dir=
+K=
+conv_times=3
+ngsadmix_root=
+start_seed=1
+ll_window=3
+q_threshold=0.01
 
-file=$1
-max_seed=$2
-threads=$3
-out_dir=$4
-K=$5
-conv_times=$6
-ngsadmix_root=$7
-start_seed=${8:-1}
-ll_window=${9:-3}
-q_threshold=${10:-0.01}
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        --beagle)
+            [[ $# -ge 2 ]] || die 2 "Missing value for --beagle"
+            file=$2
+            shift 2
+            ;;
+        --max-run)
+            [[ $# -ge 2 ]] || die 2 "Missing value for --max-run"
+            max_seed=$2
+            shift 2
+            ;;
+        --threads)
+            [[ $# -ge 2 ]] || die 2 "Missing value for --threads"
+            threads=$2
+            shift 2
+            ;;
+        --outdir)
+            [[ $# -ge 2 ]] || die 2 "Missing value for --outdir"
+            out_dir=$2
+            shift 2
+            ;;
+        --k)
+            [[ $# -ge 2 ]] || die 2 "Missing value for --k"
+            K=$2
+            shift 2
+            ;;
+        --conv-times)
+            [[ $# -ge 2 ]] || die 2 "Missing value for --conv-times"
+            conv_times=$2
+            shift 2
+            ;;
+        --ngsadmix-folder)
+            [[ $# -ge 2 ]] || die 2 "Missing value for --ngsadmix-folder"
+            ngsadmix_root=$2
+            shift 2
+            ;;
+        --start-seed)
+            [[ $# -ge 2 ]] || die 2 "Missing value for --start-seed"
+            start_seed=$2
+            shift 2
+            ;;
+        --ll-threshold)
+            [[ $# -ge 2 ]] || die 2 "Missing value for --ll-threshold"
+            ll_window=$2
+            shift 2
+            ;;
+        --q-threshold)
+            [[ $# -ge 2 ]] || die 2 "Missing value for --q-threshold"
+            q_threshold=$2
+            shift 2
+            ;;
+        --help)
+            usage
+            exit 0
+            ;;
+        *)
+            die 2 "Unknown option: $1"
+            ;;
+    esac
+done
+
+[[ -n ${file:-} ]] || die 2 "Missing required option --beagle"
+[[ -n ${out_dir:-} ]] || die 2 "Missing required option --outdir"
+[[ -n ${K:-} ]] || die 2 "Missing required option --k"
+[[ -n ${ngsadmix_root:-} ]] || die 2 "Missing required option --ngsadmix-folder"
 
 is_pos_int "$max_seed" || die 5 "max_seed must be a positive integer"
 is_pos_int "$threads" || die 5 "threads must be a positive integer"
@@ -205,13 +268,13 @@ summary_file=$prefix.summary.txt
 printf 'seed\tngsadmix_exit\tbest_like\tll_conv_count\tq_conv_count\tresult\n' > "$status_tsv" || die 7 "Could not write $status_tsv"
 
 log "file = $file"
-log "max_seed = $max_seed"
+log "max_run = $max_seed"
 log "threads = $threads"
 log "output_dir = $out_dir"
 log "K = $K"
 log "conv_times = $conv_times"
 log "start_seed = $start_seed"
-log "ll_window = $ll_window"
+log "ll_threshold = $ll_window"
 log "q_threshold = $q_threshold"
 
 converged=0
@@ -303,7 +366,7 @@ fi
     printf 'K\t%s\n' "$K"
     printf 'seeds_tested\t%s-%s\n' "$start_seed" "$final_seed_tested"
     printf 'conv_times\t%s\n' "$conv_times"
-    printf 'll_window\t%s\n' "$ll_window"
+    printf 'll_threshold\t%s\n' "$ll_window"
     printf 'q_threshold\t%s\n' "$q_threshold"
     printf 'best_seed\t%s\n' "${best_seed:-NA}"
     printf 'best_like\t%s\n' "${best_like:-NA}"
@@ -322,6 +385,6 @@ if (( converged == 1 )); then
     exit 0
 fi
 
-warn "No convergence reached by seed $max_seed"
+warn "No convergence reached by run $max_seed"
 warn "Best seed was ${best_seed:-NA} with likelihood ${best_like:-NA}"
 exit 40

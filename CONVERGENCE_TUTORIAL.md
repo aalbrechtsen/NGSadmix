@@ -32,7 +32,36 @@ For each value of `K`, `scripts/convergenceNGSadmix.sh` writes:
 Run:
 
 ```bash
-scripts/convergenceNGSadmix.sh Demo/Data/Demo1input.gz 5 4 Demo/Results/Demo1ConvK3 3 3 /home/albrecht/github/NGSadmix
+scripts/convergenceNGSadmix.sh \
+  --beagle Demo/Data/Demo1input.gz \
+  --outdir Demo/Results/Demo1ConvK3 \
+  --k 3 \
+  --ngsadmix-folder /home/albrecht/github/NGSadmix
+```
+
+This command uses the script defaults for:
+
+- `--max-run 5`
+- `--threads 4`
+- `--conv-times 3`
+- `--start-seed 1`
+- `--ll-threshold 3`
+- `--q-threshold 0.01`
+
+The same command with all options written explicitly is:
+
+```bash
+scripts/convergenceNGSadmix.sh \
+  --beagle Demo/Data/Demo1input.gz \
+  --max-run 5 \
+  --threads 4 \
+  --outdir Demo/Results/Demo1ConvK3 \
+  --k 3 \
+  --conv-times 3 \
+  --ngsadmix-folder /home/albrecht/github/NGSadmix \
+  --start-seed 1 \
+  --ll-threshold 3 \
+  --q-threshold 0.01
 ```
 
 Generate the `Q`-comparison table:
@@ -74,11 +103,32 @@ That is what a stable result looks like in a quick check: the top runs have near
 Run:
 
 ```bash
-scripts/convergenceNGSadmix.sh Demo/Data/Demo1input.gz 5 4 Demo/Results/Demo1ConvK5 5 3 /home/albrecht/github/NGSadmix
+scripts/convergenceNGSadmix.sh \
+  --beagle Demo/Data/Demo1input.gz \
+  --outdir Demo/Results/Demo1ConvK5 \
+  --k 5 \
+  --ngsadmix-folder /home/albrecht/github/NGSadmix
 echo $?
 ```
 
 The command exits with code `40`, which means no convergence was reached within the requested seeds.
+
+The same command with all options written explicitly is:
+
+```bash
+scripts/convergenceNGSadmix.sh \
+  --beagle Demo/Data/Demo1input.gz \
+  --max-run 5 \
+  --threads 4 \
+  --outdir Demo/Results/Demo1ConvK5 \
+  --k 5 \
+  --conv-times 3 \
+  --ngsadmix-folder /home/albrecht/github/NGSadmix \
+  --start-seed 1 \
+  --ll-threshold 3 \
+  --q-threshold 0.01
+echo $?
+```
 
 Generate the `Q`-comparison table:
 
