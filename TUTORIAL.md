@@ -24,15 +24,6 @@ Compile the program with:
 g++ NGSadmix.cpp -O3 -lpthread -lz -o NGSadmix
 ```
 
-<details>
-<summary>Example output</summary>
-
-```text
-No output on success.
-```
-
-</details>
-
 ## Setup
 
 Run all commands below from the repository root.
@@ -42,15 +33,6 @@ Create an output directory:
 ```bash
 mkdir -p Demo/Results
 ```
-
-<details>
-<summary>Example output</summary>
-
-```text
-No output on success.
-```
-
-</details>
 
 Check that the expected input files are present:
 
@@ -121,21 +103,6 @@ cut -f 1 -d " " Demo/Data/Demo1pop.info | sort | uniq -c
      10 CEU
      10 JPT
      10 YRI
-```
-
-</details>
-
-Create a label file for plotting Example 1:
-
-```bash
-cut -f 1 -d " " Demo/Data/Demo1pop.info > Demo/Results/poplabel
-```
-
-<details>
-<summary>Example output</summary>
-
-```text
-No output on success.
 ```
 
 </details>
@@ -223,7 +190,7 @@ best like=-113212.723533 after 324 iterations
 Interactive R:
 
 ```r
-pop <- scan("Demo/Results/poplabel", what = "character")
+pop <- read.table("Demo/Data/Demo1pop.info", as.is = TRUE)[, 1]
 q <- read.table("Demo/Results/Demo1NGSadmix.qopt")
 ord <- order(pop)
 par(mar = c(7, 4, 1, 1))
@@ -240,7 +207,7 @@ barplot(
 Non-interactive PNG output:
 
 ```bash
-Rscript -e 'png("Demo/Results/Demo1NGSadmix.png", width=1200, height=700); pop<-scan("Demo/Results/poplabel", what="character", quiet=TRUE); q<-read.table("Demo/Results/Demo1NGSadmix.qopt"); ord<-order(pop); par(mar=c(7,4,1,1)); barplot(t(q)[,ord], col=c(2,1,3), names.arg=pop[ord], las=2, ylab="Demo1 admixture proportions", cex.names=0.75); dev.off()'
+Rscript -e 'png("Demo/Results/Demo1NGSadmix.png", width=1200, height=700); pop<-read.table("Demo/Data/Demo1pop.info", as.is=TRUE)[,1]; q<-read.table("Demo/Results/Demo1NGSadmix.qopt"); ord<-order(pop); par(mar=c(7,4,1,1)); barplot(t(q)[,ord], col=c(2,1,3), names.arg=pop[ord], las=2, ylab="Demo1 admixture proportions", cex.names=0.75); dev.off()'
 ```
 
 <details>
