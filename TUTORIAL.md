@@ -1,11 +1,5 @@
 # NGSadmix Tutorial
 
-The upstream tutorial lives here:
-
-<https://www.popgen.dk/software/index.php/NgsAdmixTutorial>
-
-This version is adapted to this repository and uses commands that can be run directly from the project root.
-
 ## Repository Layout
 
 - `./NGSadmix` is the compiled executable
