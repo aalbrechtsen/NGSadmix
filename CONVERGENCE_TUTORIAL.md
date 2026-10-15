@@ -101,11 +101,11 @@ That is what a stable result looks like in a quick check: the top runs have near
 
 ### Top Two `K=3` Runs
 
-![Demo1 K=3 top two runs](Demo/Results/ConvergenceTutorial/Demo1_K3_top2.png)
+![Demo1 K=3 top two runs](docs/images/convergence/Demo1_K3_top2.png)
 
 ### `K=3` Log-Likelihood And `Q` Differences
 
-![Demo1 K=3 convergence metrics](Demo/Results/ConvergenceTutorial/Demo1_K3_metrics.png)
+![Demo1 K=3 convergence metrics](docs/images/convergence/Demo1_K3_metrics.png)
 
 ## Example 2: Demo1 Does Not Converge Quickly For `K=5`
 
@@ -169,11 +169,11 @@ That is exactly the kind of behavior you want to flag: the top run is better tha
 
 ### Top Two `K=5` Runs
 
-![Demo1 K=5 top two runs](Demo/Results/ConvergenceTutorial/Demo1_K5_top2.png)
+![Demo1 K=5 top two runs](docs/images/convergence/Demo1_K5_top2.png)
 
 ### `K=5` Log-Likelihood And `Q` Differences
 
-![Demo1 K=5 convergence metrics](Demo/Results/ConvergenceTutorial/Demo1_K5_metrics.png)
+![Demo1 K=5 convergence metrics](docs/images/convergence/Demo1_K5_metrics.png)
 
 ## How To Read These Results
 

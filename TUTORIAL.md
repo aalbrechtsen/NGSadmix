@@ -222,7 +222,7 @@ null device
 
 </details>
 
-![Demo 1 admixture plot](Demo/Results/Demo1NGSadmix.png)
+![Demo 1 admixture plot](docs/images/ngsadmix/Demo1NGSadmix.png)
 
 ## Example 2: Larger Dataset
 
@@ -391,9 +391,9 @@ null device
 
 </details>
 
-![Demo 2 admixture plot for K=3](Demo/Results/Demo2NGSadmixK3.png)
+![Demo 2 admixture plot for K=3](docs/images/ngsadmix/Demo2NGSadmixK3.png)
 
-![Demo 2 admixture plot for K=4](Demo/Results/Demo2NGSadmixK4.png)
+![Demo 2 admixture plot for K=4](docs/images/ngsadmix/Demo2NGSadmixK4.png)
 
 ## Practical Notes
 
