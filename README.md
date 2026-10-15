@@ -1,156 +1,117 @@
 # NGSadmix
 
-Inferring admixture proportions from NGS data.
+**Admixture proportions from low-depth sequencing data, using genotype likelihoods.**
 
-<a href="docs/images/NgsAdmix.png">
-  <img src="docs/images/NgsAdmix.png" alt="NGSadmix plot" width="360">
-</a>
+![Admixture proportions for K = 2 to 5 in five HapMap populations](docs/images/Demo2_admixture_K2-5.png)
 
-NGSadmix estimates individual admixture proportions from next-generation sequencing data using genotype likelihoods rather than hard genotype calls. This makes it useful for medium- and low-coverage NGS data where genotype uncertainty matters.
+<sub>The demo data in this repository: 100 individuals from five HapMap populations, 49,475 sites. Every K was run with admixer `--conv 3` and takes about 1 second. Made with [docs/images/readme_figure.R](docs/images/readme_figure.R).</sub>
 
-NGSadmix is conceptually related to ADMIXTURE and STRUCTURE, but it works directly from genotype likelihoods. It is intended for population structure and recent admixture that still produces allele-frequency differences between individuals or groups.
+NGSadmix estimates individual admixture proportions and ancestral allele frequencies from next-generation sequencing data. It works directly on genotype likelihoods rather than on called genotypes, so it accounts for genotype uncertainty. This makes it suited to low- and medium-depth data, where called genotypes give biased estimates.
 
-# Recommended: admixer
+The model is the same as in ADMIXTURE and STRUCTURE, which describe population structure and recent admixture through differences in allele frequencies between ancestral populations.
 
-[admixer](https://github.com/aalbrechtsen/admixer) is a new and much faster implementation of the NGSadmix model, and it is now the recommended way to run NGSadmix. It reads the same Beagle files, uses the same filters (`-minMaf`, `-misTol`, `-minInd`), and estimates the same admixture proportions. It also:
+## Install NGSadmix's new faster version: admixer
 
-- uses a faster optimisation algorithm (Newton steps with quasi-Newton acceleration instead of accelerated EM). On the demo data it was 11–23× faster than this program, with 1 or 8 threads;
-- can run several seeds and check convergence in one command (`--conv`);
-- writes the [evalAdmix](https://github.com/GenisGE/evalAdmix) correlation of residuals by default, so you can check the model fit.
+[admixer](https://github.com/aalbrechtsen/admixer) is a new implementation of the NGSadmix model and the recommended way to run NGSadmix. It reads the same Beagle files, applies the same filters, and estimates the same admixture proportions, but:
+
+- it is **11–23× faster** on the demo data (Newton steps with quasi-Newton acceleration instead of accelerated EM);
+- `--conv` runs several seeds and checks that they converge to the same solution, in one command;
+- it writes the [evalAdmix](https://github.com/GenisGE/evalAdmix) correlation of residuals by default, so you can check how well the model fits.
+
+Prebuilt binary (Linux x86_64, no dependencies):
 
 ```bash
 wget https://github.com/aalbrechtsen/admixer/raw/main/bin/admixer-linux-x86_64.tar.gz
 tar xzf admixer-linux-x86_64.tar.gz
-./admixer -j8 --seed=1 -o outFileName inputBeagleFile.gz 3
+./admixer
 ```
 
-See [ADMIXER_TUTORIAL.md](ADMIXER_TUTORIAL.md) for the demo data run with admixer, plots of the evalAdmix residuals, and a comparison with this program (run time and admixture proportions).
+To build from source, see the [admixer README](https://github.com/aalbrechtsen/admixer#from-source).
 
-The original NGSadmix program below is still maintained and works as before.
-
-# Tutorials
-
-- [ADMIXER_TUTORIAL.md](ADMIXER_TUTORIAL.md): the demo data with admixer (recommended), including evalAdmix plots and a comparison with the original NGSadmix.
-- [TUTORIAL.md](TUTORIAL.md): the demo data with the original NGSadmix program.
-- [CONVERGENCE_TUTORIAL.md](CONVERGENCE_TUTORIAL.md): checking convergence across multiple runs of the original NGSadmix program.
-
-# Installation of the original NGSadmix
-
-Clone and compile:
-
-## Clone
+### Quick start
 
 ```bash
-git clone https://github.com/aalbrechtsen/NGSadmix.git
+# one run, K = 3, 8 threads
+admixer -j8 --seed=1 -o myresults input.beagle.gz 3
+
+# several seeds until 3 runs agree (recommended)
+admixer -j8 --seed=1 --conv 3 -o myresults input.beagle.gz 3
 ```
 
-## Compile
+Output:
+
+| file | content |
+|---|---|
+| `myresults.3.Q` | admixture proportions, one row per individual |
+| `myresults.3.P.gz` | ancestral allele frequencies, one row per site |
+| `myresults.3.corres.txt` | evalAdmix correlation of residuals between individuals |
+| `myresults.3.log` | run log, including the log-likelihood |
+| `myresults.3.conv` | with `--conv`: one line per run |
+
+| admixer option | NGSadmix option | meaning |
+|---|---|---|
+| `-jX` | `-P X` | number of threads |
+| `--seed=X` | `-seed X` | random seed |
+| `-o NAME` | `-o NAME` | output prefix |
+| `--minMaf=X` | `-minMaf X` | minimum minor allele frequency (default 0.05) |
+| `--misTol=X` | `-misTol X` | genotype likelihoods with max − min < X count as missing (default 0.05) |
+| `--minInd=X` | `-minInd X` | minimum number of individuals with data at a site |
+
+## Tutorials
+
+| tutorial | content |
+|---|---|
+| [ADMIXER_TUTORIAL.md](ADMIXER_TUTORIAL.md) | **Start here.** The demo data with admixer: runs, admixture and evalAdmix plots, convergence over seeds, and a comparison with the original NGSadmix (run time and admixture proportions). |
+| [TUTORIAL.md](TUTORIAL.md) | The demo data with the original NGSadmix program. |
+| [CONVERGENCE_TUTORIAL.md](CONVERGENCE_TUTORIAL.md) | Checking convergence across seeds with the original NGSadmix program. |
+
+## The original NGSadmix program
+
+The original program (`NGSadmix.cpp` in this repository) is still available. Installation, usage, output files and options are on a separate page: **[ORIGINAL_NGSADMIX.md](ORIGINAL_NGSADMIX.md)**.
+
+## Input: Beagle genotype-likelihood files
+
+Both admixer and NGSadmix read genotype likelihoods in Beagle format, optionally gzip-compressed:
+
+- column 1: marker name
+- column 2: allele 1
+- column 3: allele 2
+- then 3 columns per individual: the likelihoods of the genotypes 11, 12 and 22
+
+The likelihoods are usually normalised to sum to 1 for each individual at a site. They are still likelihoods, not posterior genotype probabilities.
+
+### From BAM files with ANGSD
 
 ```bash
-cd NGSadmix
-g++ NGSadmix.cpp -O3 -lpthread -lz -o NGSadmix
+angsd -GL 1 -out genolike -nThreads 10 -doGlf 2 -doMajorMinor 1 -SNP_pval 1e-6 -doMaf 1 -bam bam.filelist
 ```
 
-NGSadmix is also distributed as part of [ANGSD](https://github.com/ANGSD/angsd).
+This writes `genolike.beagle.gz`. See the [ANGSD documentation](https://www.popgen.dk/angsd/index.php/Beagle_input).
 
-# Quick Start (original NGSadmix)
+### From VCF files
 
-Run NGSadmix on a Beagle genotype-likelihood file:
-
-```bash
-./NGSadmix -likes inputBeagleFile.gz -K 3 -o outFileName -P 10
-```
-
-Main arguments:
-
-- `-likes`: Beagle file with genotype likelihoods
-- `-K`: number of ancestral populations
-- `-o` or `-outfiles`: output prefix
-- `-P`: number of threads
-
-Example:
-
-```bash
-./NGSadmix -likes input.gz -K 3 -P 4 -o myoutfiles -minMaf 0.05
-```
-
-# Input Format
-
-NGSadmix expects genotype likelihoods in Beagle format. The file may be gzip-compressed.
-
-- Column 1: marker name
-- Column 2: allele 1
-- Column 3: allele 2
-- Then 3 columns per individual with genotype likelihoods
-
-# Output Files (original NGSadmix)
-
-NGSadmix writes these main output files:
-
-- `.log`: run settings, progress, likelihoods, and timing
-- `.qopt`: estimated admixture proportions for each individual
-- `.fopt.gz`: estimated allele frequencies for each site and ancestral population
-- `.filter`: per-site filtering summary
-
-# Common Options (original NGSadmix)
-
-Useful options (run `./NGSadmix` without arguments for the full list):
-
-- `-seed`: seed for the random initialization
-- `-fname`: starting ancestral population frequencies
-- `-qname`: starting admixture proportions
-- `-printInfo 1`: print marker ID and mean MAF for analyzed SNPs
-- `-method 0`: disable EM acceleration
-- `-misTol`: threshold for treating a site as missing, default `0.05`
-- `-tolLike50`: stopping criterion based on likelihood change every 50 iterations, default `0.1`
-- `-tol`: convergence tolerance, default `1e-5`
-- `-dymBound`: use dynamic boundaries, default enabled
-- `-maxiter`: maximum EM iterations, default `2000`
-- `-minMaf`: minimum minor allele frequency, default `0.05`
-- `-minLrt`: minimum likelihood-ratio threshold for MAF > 0
-- `-minInd`: minimum number of informative individuals at a site
-
-If you want to test stability across runs, use multiple seeds. This repository includes [CONVERGENCE_TUTORIAL.md](CONVERGENCE_TUTORIAL.md) for that workflow.
-
-# Making A Beagle File
-
-NGSadmix expects a Beagle-format genotype-likelihood file. Common ways to create one are from VCF files with genotype likelihoods or from BAM files using ANGSD.
-
-## From VCF Files
-
-If you already have a VCF file that contains genotype likelihood information, one option is to convert it to Beagle format with `vcftools`:
+A VCF file with genotype likelihoods can be converted with `vcftools` (chromosomes must be given):
 
 ```bash
 vcftools --vcf input.vcf --out test --BEAGLE-GL --chr 1,2
 ```
 
-Chromosomes must be specified.
+or written with `bcftools query`.
 
-It is also possible to generate Beagle-style output from VCF data using `bcftools query`.
+## Why genotype likelihoods?
 
-## From BAM Files Using ANGSD
+In the simulation below, individuals have different sequencing depths (second panel). NGSadmix recovers the true admixture proportions. Called genotypes give admixture proportions that depend on depth, so they create structure that does not exist.
 
-The ANGSD documentation describes generating Beagle input with `-doGlf 2`, together with major/minor allele inference and genotype-likelihood estimation.
+<a href="docs/images/NgsAdmix.png">
+  <img src="docs/images/NgsAdmix.png" alt="Simulated admixture: truth, depth, NGSadmix and called genotypes" width="480">
+</a>
 
-Example command from the ANGSD Beagle-input page:
+## Citation
 
-```bash
-./angsd -GL 1 -out genolike -nThreads 10 -doGlf 2 -doMajorMinor 1 -SNP_pval 1e-6 -doMaf 1 -bam bam.filelist
-```
+If you use NGSadmix or admixer for genotype likelihoods, cite:
 
-This produces:
+> Skotte, L., Korneliussen, T. S., and Albrechtsen, A. (2013). Estimating individual admixture proportions from next generation sequencing data. *Genetics* 195(3): 693–702.
 
-```text
-genolike.beagle.gz
-```
+If you use the evalAdmix output, also cite:
 
-The resulting Beagle file contains normalized genotype likelihoods for each individual at each site. The values often sum to 1 for each individual at a site, but they should still be interpreted as normalized likelihoods rather than posterior genotype probabilities.
-
-ANGSD documentation:
-https://www.popgen.dk/angsd/index.php/Beagle_input
-
-# Citation
-
-If you use NGSadmix, cite:
-
-Skotte, L., Korneliussen, T. S., and Albrechtsen, A. (2013). Estimating individual admixture proportions from next generation sequencing data. Genetics 195(3): 693-702.
+> Garcia-Erill, G., and Albrechtsen, A. (2020). Evaluation of model fit of inferred admixture proportions. *Molecular Ecology Resources* 20(4): 936–949.

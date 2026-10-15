@@ -2,7 +2,7 @@
 
 [admixer](https://github.com/aalbrechtsen/admixer) is a new implementation of the NGSadmix model. It fits the same model to the same Beagle genotype-likelihood files, but it uses a faster optimisation algorithm (block relaxation with Newton steps and quasi-Newton acceleration). On the demo data in this repository it was 11–23× faster than the original `NGSadmix` and reaches the same admixture proportions. It also computes the [evalAdmix](https://github.com/GenisGE/evalAdmix) correlation of residuals by default.
 
-This tutorial runs the same examples as [TUTORIAL.md](TUTORIAL.md), but with admixer. It ends with a comparison of the two programs (see [Comparison with the original NGSadmix](#comparison-with-the-original-ngsadmix)).
+This tutorial analyses the five-population dataset from [TUTORIAL.md](TUTORIAL.md) (Example 2 there) with admixer. It ends with a comparison of the two programs (see [Comparison with the original NGSadmix](#comparison-with-the-original-ngsadmix)).
 
 ## Install admixer
 
@@ -32,7 +32,7 @@ Run all commands from the root of this repository:
 mkdir -p Demo/Results/Admixer
 ```
 
-The input files are the same as in [TUTORIAL.md](TUTORIAL.md): `Demo/Data/Demo1input.gz`, `Demo/Data/Demo1pop.info`, `Demo/Data/Demo2input.gz` and `Demo/Data/Demo2pop.info`.
+The input files are `Demo/Data/Demo2input.gz` (Beagle genotype likelihoods) and `Demo/Data/Demo2pop.info` (population of each individual, in the same order).
 
 ## Command Line
 
@@ -65,65 +65,7 @@ admixer writes its output in ADMIXTURE's format, with `K` in the file name:
 
 admixer writes the evalAdmix correlations but does not plot them. The R code below shows how to make the plot.
 
-## Example 1: Small Three-Population Dataset
-
-30 individuals (10 CEU, 10 JPT, 10 YRI), 5,616 sites.
-
-```bash
-admixer -j8 --seed=1 -o Demo/Results/Admixer/Demo1admixer Demo/Data/Demo1input.gz 3
-```
-
-<details>
-<summary>Example output</summary>
-
-```text
-admixer 0.2.10
-Command: admixer -j8 --seed=1 -o Demo/Results/Admixer/Demo1admixer Demo/Data/Demo1input.gz 3
-Input: genotype likelihoods (beagle) for 30 individuals at 5616 sites; 5616 sites after filtering (minMaf 0.05, minInd 0)
-Missing GL entries (max - min GL < 0.05) left out: 4363 of 168480 (2.59%)
-Random seed: 1
-...
-Converged in 22 iterations (0.096 sec)
-Loglikelihood: -113205.784530
-Loglikelihood over all GL entries, missing ones included (as NGSadmix): -113205.784530
-Optimality check (max projected gradient): P 2.93e-05, Q 3.62e-08
-Writing output files.
-evalAdmix correlation of residuals written to Demo/Results/Admixer/Demo1admixer.3.corres.txt (0.01 sec)
-Log written to Demo/Results/Admixer/Demo1admixer.3.log
-```
-
-</details>
-
-The line `Loglikelihood over all GL entries, missing ones included (as NGSadmix)` can be compared directly with the `best like=` value in an NGSadmix log.
-
-### Plot the admixture proportions and the evalAdmix residuals
-
-The plotting functions come from evalAdmix's `visFuns.R`:
-
-```r
-source("https://raw.githubusercontent.com/GenisGE/evalAdmix/master/visFuns.R")
-
-pop <- read.table("Demo/Data/Demo1pop.info", as.is = TRUE)[, 1]
-q <- read.table("Demo/Results/Admixer/Demo1admixer.3.Q")
-ord <- orderInds(pop = pop, q = q)
-
-# admixture proportions
-plotAdmix(q, pop = pop, ord = ord, cex.lab = 1.2, col = 2:10)
-
-# evalAdmix correlation of residuals
-r <- as.matrix(read.table("Demo/Results/Admixer/Demo1admixer.3.corres.txt"))
-plotCorRes(r, pop = pop, ord = ord, max_z = 0.1, title = "")
-```
-
-To write PNG files instead, wrap each plot in `png("file.png", width = 1200, height = 500)` … `dev.off()` (we used `width = 900, height = 800` for the correlation plot).
-
-![Demo 1 admixture proportions, admixer](docs/images/admixer/Demo1admixer.3.admix.png)
-
-![Demo 1 evalAdmix correlation of residuals, admixer](docs/images/admixer/Demo1admixer.3.evaladmix.png)
-
-In the evalAdmix plot, each square is the correlation of the residuals of two individuals. The upper-left triangle shows pairs of individuals, and the lower-right triangle shows the mean within and between populations. Values near 0 mean the model fits. Positive correlations within a population mean that the model does not capture all of its structure. With only 5,616 sites, the per-pair correlations in Demo1 are noisy.
-
-## Example 2: Larger Dataset
+## Example 1: Five HapMap Populations
 
 100 individuals (20 each of ASW, CEU, CHB, MXL, YRI), 50,000 sites.
 
@@ -155,7 +97,30 @@ Loglikelihood over all GL entries, missing ones included (as NGSadmix): -3817737
 
 </details>
 
-Plot as in Example 1, with `Demo/Data/Demo2pop.info` and `Demo/Results/Admixer/Demo2admixer.3.Q` / `.3.corres.txt` (and `.4.` for K=4).
+The line `Loglikelihood over all GL entries, missing ones included (as NGSadmix)` can be compared directly with the `best like=` value in an NGSadmix log.
+
+### Plot the admixture proportions and the evalAdmix residuals
+
+The plotting functions come from evalAdmix's `visFuns.R`:
+
+```r
+source("https://raw.githubusercontent.com/GenisGE/evalAdmix/master/visFuns.R")
+
+pop <- read.table("Demo/Data/Demo2pop.info", as.is = TRUE)[, 1]
+q <- read.table("Demo/Results/Admixer/Demo2admixer.3.Q")
+ord <- orderInds(pop = pop, q = q)
+
+# admixture proportions
+plotAdmix(q, pop = pop, ord = ord, cex.lab = 1.2, col = 2:10)
+
+# evalAdmix correlation of residuals
+r <- as.matrix(read.table("Demo/Results/Admixer/Demo2admixer.3.corres.txt"))
+plotCorRes(r, pop = pop, ord = ord, max_z = 0.1, title = "")
+```
+
+For K=4, replace `.3.` with `.4.` in the file names. To write PNG files instead, wrap each plot in `png("file.png", width = 1200, height = 500)` … `dev.off()` (we used `width = 900, height = 800` for the correlation plot).
+
+In the evalAdmix plot, each square is the correlation of the residuals of two individuals. The upper-left triangle shows pairs of individuals, and the lower-right triangle shows the mean within and between populations. Values near 0 mean the model fits. Positive correlations within a population mean that the model does not capture all of its structure.
 
 ![Demo 2 admixture proportions for K=3, admixer](docs/images/admixer/Demo2admixer.3.admix.png)
 
@@ -167,7 +132,7 @@ At K=3, evalAdmix shows that the model does not fit well. MXL individuals have p
 
 ![Demo 2 evalAdmix correlation of residuals for K=4, admixer](docs/images/admixer/Demo2admixer.4.evaladmix.png)
 
-## Example 3: Several Seeds with a Convergence Test
+## Example 2: Several Seeds with a Convergence Test
 
 With larger `K`, a single run can end in a local optimum. `--conv X` runs admixer with consecutive seeds, reading the data only once, until `X` runs agree with the best run. Two runs agree when the largest difference in any Q entry is below `--conv_thres` (default 0.01). It stops after at most `--max_runs` runs (default 10). This replaces `scripts/convergenceNGSadmix.sh` from [CONVERGENCE_TUTORIAL.md](CONVERGENCE_TUTORIAL.md).
 
@@ -200,17 +165,16 @@ At K=5 the residual correlations between populations are close to 0. Some struct
 
 ## Comparison with the original NGSadmix
 
-We ran the commands from [TUTORIAL.md](TUTORIAL.md) (NGSadmix, `-minMaf 0.05`, seed 1 for Demo1 and seed 4 for Demo2) and the admixer commands above with the same seeds. Each program was run with 1 and with 8 threads (`-P` / `-j`), one run at a time, on an Intel Xeon Gold 6238 (2.1 GHz).
+We ran the Example 2 commands from [TUTORIAL.md](TUTORIAL.md) (NGSadmix, `-minMaf 0.05`, seed 4) and the admixer commands above with the same seed. Each program was run with 1 and with 8 threads (`-P` / `-j`), one run at a time, on an Intel Xeon Gold 6238 (2.1 GHz).
 
 ### Run time (wall clock, including reading the input)
 
 | data | K | NGSadmix, 1 thread | admixer, 1 thread | speed-up | NGSadmix, 8 threads | admixer, 8 threads | speed-up |
 |---|---|---|---|---|---|---|---|
-| Demo1 | 3 | 3.5 s | 0.25 s | 14× | 2.3 s | 0.10 s | 23× |
-| Demo2 | 3 | 69 s | 4.8 s | 15× | 17 s | 1.6 s | 11× |
-| Demo2 | 4 | 129 s | 5.7 s | 23× | 32 s | 1.7 s | 19× |
+| default | 3 | 69 s | 4.8 s | 15× | 17 s | 1.6 s | 11× |
+| default | 4 | 129 s | 5.7 s | 23× | 32 s | 1.7 s | 19× |
 
-admixer needs 22–30 iterations, while NGSadmix needs 200–350 EM iterations.
+admixer needs 29–30 iterations, while NGSadmix needs 225–343 EM iterations.
 
 ### Admixture proportions
 
@@ -226,16 +190,13 @@ cmpQ <- function(f1, f2) {
 cmpQ("Demo/Results/Demo2NGSadmixK3.qopt", "Demo/Results/Admixer/Demo2admixer.3.Q")
 ```
 
-| data | K | NGSadmix log-likelihood | admixer log-likelihood | max \|ΔQ\| |
+| NGSadmix settings | K | NGSadmix log-likelihood | admixer log-likelihood | max \|ΔQ\| |
 |---|---|---|---|---|
-| Demo1, NGSadmix seed 1 | 3 | −113212.72 | −113205.78 | 0.215 |
-| Demo1, NGSadmix seed 2 | 3 | −113205.78 | −113205.78 | 0.0002 |
-| Demo2 | 3 | −3865964.42 | −3865964.31 | 0.0020 |
-| Demo2 | 4 | −3817738.02 | −3817737.88 | 0.0010 |
-| Demo2, NGSadmix with strict stopping rule | 3 | −3865964.30 | −3865964.31 | 0.00006 |
-| Demo2, NGSadmix with strict stopping rule | 4 | −3817737.87 | −3817737.88 | 0.00003 |
+| default | 3 | −3865964.42 | −3865964.31 | 0.0020 |
+| default | 4 | −3817738.02 | −3817737.88 | 0.0010 |
+| NGSadmix with strict stopping rule | 3 | −3865964.30 | −3865964.31 | 0.00006 |
+| NGSadmix with strict stopping rule | 4 | −3817737.87 | −3817737.88 | 0.00003 |
 
-The two programs reach the same admixture proportions:
+The two programs reach the same admixture proportions. With its default stopping rule (`-tolLike50 0.1`), NGSadmix stops slightly before the optimum, so Q differs by up to 0.002. With a strict stopping rule (`-tol 1e-9 -tolLike50 1e-4 -maxiter 20000`, 650–950 iterations), NGSadmix's Q agrees with admixer's to within 0.0001.
 
-- **Demo1:** NGSadmix with seed 1 (the seed used in [TUTORIAL.md](TUTORIAL.md)) ends in a local optimum, 7 log-likelihood units below the best solution. NGSadmix seeds 2, 3, 7 and 8 reach the solution that admixer finds with seed 1, and their Q differs from admixer's by 0.0002 to 0.0014. Always run several seeds.
-- **Demo2:** with its default stopping rule (`-tolLike50 0.1`), NGSadmix stops slightly before the optimum, so Q differs by up to 0.002. With a strict stopping rule (`-tol 1e-9 -tolLike50 1e-4 -maxiter 20000`, 650–950 iterations), NGSadmix's Q agrees with admixer's to within 0.0001.
+Both programs can end in a local optimum, so always run several seeds (`--conv` in admixer, [CONVERGENCE_TUTORIAL.md](CONVERGENCE_TUTORIAL.md) for NGSadmix).
