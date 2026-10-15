@@ -2,7 +2,7 @@
 
 **Admixture proportions from low-depth sequencing data, using genotype likelihoods.**
 
-![Admixture proportions for K = 2 to 5 in five HapMap populations](docs/images/Demo2_admixture_K2-5.png)
+![Admixture proportions for K = 2 to 4 in five HapMap populations](docs/images/Demo2_admixture_K2-4.png)
 
 <sub>The demo data in this repository: 100 individuals from five HapMap populations, 49,475 sites. Every K was run with admixer `--conv 3` and takes about 1 second. Made with [docs/images/readme_figure.R](docs/images/readme_figure.R).</sub>
 
