@@ -1,5 +1,7 @@
 # NGSadmix Tutorial
 
+This tutorial uses the original `NGSadmix` program. The faster implementation [admixer](https://github.com/aalbrechtsen/admixer) is now recommended; the same examples with admixer are in [ADMIXER_TUTORIAL.md](ADMIXER_TUTORIAL.md).
+
 ## Repository Layout
 
 - `./NGSadmix` is the compiled executable
