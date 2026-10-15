@@ -10,9 +10,6 @@ NGSadmix estimates individual admixture proportions from next-generation sequenc
 
 NGSadmix is conceptually related to ADMIXTURE and STRUCTURE, but it works directly from genotype likelihoods. It is intended for population structure and recent admixture that still produces allele-frequency differences between individuals or groups.
 
-Project website:
-http://www.popgen.dk/software/index.php/NgsAdmix
-
 # Tutorials
 
 For a repository-local tutorial using the bundled demo input files, see [TUTORIAL.md](TUTORIAL.md).
@@ -36,7 +33,7 @@ cd NGSadmix
 g++ NGSadmix.cpp -O3 -lpthread -lz -o NGSadmix
 ```
 
-NGSadmix can also be installed as part of ANGSD. See the project website for that workflow.
+NGSadmix is also distributed as part of [ANGSD](https://github.com/ANGSD/angsd).
 
 # Quick Start
 
@@ -79,7 +76,7 @@ NGSadmix writes these main output files:
 
 # Common Options
 
-Useful options from the website and built-in help:
+Useful options (run `./NGSadmix` without arguments for the full list):
 
 - `-seed`: seed for the random initialization
 - `-fname`: starting ancestral population frequencies
